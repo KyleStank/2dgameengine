@@ -28,11 +28,12 @@ struct IBaseComponent
 template <typename T>
 class Component: public IBaseComponent
 {
-    static int GetId()
-    {
-        static auto id = nextId++;
-        return id;
-    }
+    public:
+        static int GetId()
+        {
+            static auto id = nextId++;
+            return id;
+        }
 };
 
 /**
