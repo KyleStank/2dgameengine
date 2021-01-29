@@ -3,6 +3,9 @@
 
 #include <bitset>
 #include <vector>
+#include <unordered_map>
+#include <typeindex>
+#include <set>
 
 const unsigned int MAX_COMPONENTS = 32;
 
@@ -37,7 +40,7 @@ class Component: public IBaseComponent
 };
 
 /**
- * An Entity is simply an identifier for anything in the game world.
+ * An entity is simply an identifier for anything in the game world.
  */
 class Entity
 {
@@ -130,14 +133,52 @@ class Registry
         /**
          * Vector of component pools. Each pool contains data for a specific components.
          *
-         * Vector Index = component ID.
-         * Pool index = entity ID.
+         * [vector index] = component ID.
+         * [pool index] = entity ID.
          */
         std::vector<IPool*> componentPools;
+
+        /**
+         * Vector of component signatures. The signature lets us know which components are enabled for an entity.
+         * [vector index] = entity ID.
+         */
+        std::vector<Signature> entityComponentSignatures;
+
+        /**
+         * Map of active systems.
+         * [index] = system type ID.
+         */
+        std::unordered_map<std::type_index, System*> systems;
+
+        /**
+         * Set of entities that will be created in the next Registry::Update().
+         */
+        std::set<Entity> pendingCreationEntities;
+
+        /**
+         * Set of entities that will be destroyed in the next Registry::Update().
+         */
+        std::set<Entity> pendingRemovalEntities;
     
     public:
         Registry() = default;
         ~Registry() = default;
+
+        void Update();
+        void AddEntityToSystem(Entity entity);
+
+        Entity CreateEntity();
+        // void DestroyEntity(Entity entity);
+
+        void AddComponent(Entity entity);
+        void GetComponent(Entity entity);
+        // void HasComponent(Entity entity);
+        // void RemoveComponent(Entity entity);
+        
+        void AddSystem();
+        // void GetSystem();
+        // void HasSystem();
+        // void RemoveSystem();
 };
 
 #endif
