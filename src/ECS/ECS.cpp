@@ -1,6 +1,8 @@
 #include <algorithm>
+#include <string>
 
 #include "ECS.h"
+#include "../Logger/Logger.h"
 
 int Entity::GetId() const {
     return id;
@@ -55,4 +57,24 @@ std::vector<Entity> System::GetSystemEntities() const
 const Signature& System::GetComponentSignature() const
 {
     return componentSignature;
+}
+
+void Registry::Update()
+{
+    // TODO: Create entities that are pending.
+    // TODO: Destroy entities that are pending.
+}
+
+Entity Registry::CreateEntity()
+{
+    // Increment total number of entities and assign new value at the same time.
+    int entityId = numEntities++;
+
+    // Create new Entity instance and add to list of pending.
+    Entity entity(entityId);
+    pendingCreationEntities.insert(entity);
+
+    Logger::Log("Entity created with ID: " + std::to_string(entityId));
+
+    return entity;
 }
