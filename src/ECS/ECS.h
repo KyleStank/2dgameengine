@@ -34,7 +34,7 @@ class Component: public IBaseComponent
     public:
         static int GetId()
         {
-            static auto id = nextId++;
+            static int id = nextId++;
             return id;
         }
 };
@@ -79,13 +79,17 @@ class System
         void AddEntityToSystem(Entity entity);
         void RemoveEntityFromSystem(Entity entity);
 
-        template <typename TComponent>
-        void RequireComponent()
-        {
-            const auto componentId = Component<TComponent>::GetId();
-            componentSignature.set(componentId);
-        }
+        template <typename TComponent> void RequireComponent();
 };
+
+// System template function implementations.
+
+template <typename TComponent>
+void System::RequireComponent()
+{
+    const int componentId = Component<TComponent>::GetId();
+    componentSignature.set(componentId);
+}
 
 /**
  * Base pool interface.
@@ -170,15 +174,58 @@ class Registry
         Entity CreateEntity();
         // void DestroyEntity(Entity entity);
 
-        void AddComponent(Entity entity);
-        void GetComponent(Entity entity);
+        template <typename TComponent, typename ...TArgs> void AddComponent(Entity entity, TArgs&& ...args);
+        template <typename TComponent> void RemoveComponent(Entity entity);
+        template <typename TComponent> bool HasComponent(Entity entity) const;
+        template <typename TComponent> TComponent& GetComponent(Entity entity) const;
+
+        // void GetComponent(Entity entity);
         // void HasComponent(Entity entity);
-        // void RemoveComponent(Entity entity);
         
-        void AddSystem();
+        // void AddSystem();
         // void GetSystem();
         // void HasSystem();
         // void RemoveSystem();
 };
+
+// Registry template function implementations.
+
+template <typename TComponent, typename ...TArgs>
+void Registry::AddComponent(Entity entity, TArgs&& ...args)
+{
+    const int componentId = Component<TComponent>::GetId();
+    const int entityId = entity.GetId();
+
+    // If the component ID is greater than the size of componentPools, add one more element to the vector.
+    if (componentId >= componentPools.size())
+    {
+        componentPools.resize(componentId + 1, nullptr);
+    }
+
+    // If there isn't a pool for the component ID, create one.
+    if (!componentPools[componentId])
+    {
+        Pool<TComponent>* pool = new Pool<TComponent>();
+        componentPools[componentId] = pool;
+    }
+
+    // Get component pool pointer of the component ID.
+    Pool<TComponent>* componentPool = Pool<TComponent>(componentPools[componentId]);
+
+    // If the entity ID is greater than the size of the component pool, resize it to the total number of entities.
+    if (entityId >= componentPool->getSize())
+    {
+        componentPool->Resize(numEntities);
+    }
+
+    // Create a new component type TComponent and pass the arguments to its constructor.
+    TComponent newComponent(std::forward<TArgs>(args)...);
+
+    // Add the new component to the component pool list, using the entity ID as index.
+    componentPool->Set(entityId, newComponent);
+
+    // Change the component signature of the entity and set the component to enabled.
+    entityComponentSignatures[entityId].set(componentId);
+}
 
 #endif

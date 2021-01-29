@@ -4,6 +4,9 @@
 #include "ECS.h"
 #include "../Logger/Logger.h"
 
+/**
+ * Tester!
+ */
 int Entity::GetId() const {
     return id;
 }
@@ -65,14 +68,19 @@ void Registry::Update()
     // TODO: Destroy entities that are pending.
 }
 
+void Registry::AddEntityToSystem(Entity entity)
+{
+    // TODO: Add entity to system.
+}
+
 Entity Registry::CreateEntity()
 {
     // Increment total number of entities and assign new value at the same time.
     int entityId = numEntities++;
 
-    // Create new Entity instance and add to list of pending.
+    // Create new entity instance and add to list of pending.
     Entity entity(entityId);
-    pendingCreationEntities.insert(entity);
+    // pendingCreationEntities.insert(entity); // TODO: Fix error in this line.
 
     Logger::Log("Entity created with ID: " + std::to_string(entityId));
 
