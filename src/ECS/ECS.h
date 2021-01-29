@@ -70,33 +70,70 @@ class System
         System() = default;
         ~System() = default;
 
-        void AddEntityToSystem(Entity entity);
-        void RemoveEntityFromSystem(Entity entity);
-
         std::vector<Entity> GetSystemEntities() const;
         const Signature& GetComponentSignature() const;
 
+        void AddEntityToSystem(Entity entity);
+        void RemoveEntityFromSystem(Entity entity);
+
         template <typename TComponent>
-        void RequireComponent();
+        void RequireComponent()
+        {
+            const auto componentId = Component<TComponent>::GetId();
+            componentSignature.set(componentId);
+        }
 };
 
-// System template implementations.
-
-template <typename TComponent>
-void System::RequireComponent()
+/**
+ * Base pool interface.
+ */
+class IPool
 {
-    const auto componentId = Component<TComponent>::GetId();
-    componentSignature.set(componentId);
-}
+    public:
+        virtual ~IPool(); // Adding virtual requires the IPool class to be abstract.
+};
 
 /**
- * The Registry manages the creation and destruction of entities.
- * Also manages adding/removing components and systems to entities.
+ * Vector of objects of type T.
+ */
+template <typename T>
+class Pool: public IPool
+{
+    private:
+        std::vector<T> data;
+    
+    public:
+        Pool(int size = 100) { data.resize(size); }
+        ~Pool() = default;
+
+        bool isEmpty() const { return data.empty(); }
+        int getSize() const { return data.size(); }
+
+        void Resize(int size) { return data.resize(size); }
+        void Clear() { data.clear(); }
+        void Add (T obj) { data.push_back(obj); }
+        void Set(int index, T obj) { data[index] = obj; }
+
+        T& Get(int index) { static_cast<T>(data[index]); }
+
+        T& operator[](unsigned int index) { return data[index]; }
+};
+
+/**
+ * The Registry manages the creation and destruction of entities, components, and systems.
  */
 class Registry
 {
     private:
         int numEntities = 0;
+
+        /**
+         * Vector of component pools. Each pool contains data for a specific components.
+         *
+         * Vector Index = component ID.
+         * Pool index = entity ID.
+         */
+        std::vector<IPool*> componentPools;
     
     public:
         Registry() = default;
