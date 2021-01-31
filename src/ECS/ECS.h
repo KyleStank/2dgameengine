@@ -171,9 +171,11 @@ class Registry
         void Update();
         void AddEntityToSystem(Entity entity);
 
+        // Entity functions.
         Entity CreateEntity();
         // void DestroyEntity(Entity entity);
 
+        // Component functions.
         template <typename TComponent, typename ...TArgs> void AddComponent(Entity entity, TArgs&& ...args);
         template <typename TComponent> void RemoveComponent(Entity entity);
         template <typename TComponent> bool HasComponent(Entity entity) const;
@@ -182,6 +184,7 @@ class Registry
         // void GetComponent(Entity entity);
         // void HasComponent(Entity entity);
         
+        // System functions.
         // void AddSystem();
         // void GetSystem();
         // void HasSystem();
@@ -226,6 +229,24 @@ void Registry::AddComponent(Entity entity, TArgs&& ...args)
 
     // Change the component signature of the entity and set the component to enabled.
     entityComponentSignatures[entityId].set(componentId);
+}
+
+template <typename TComponent>
+void Registry::RemoveComponent(Entity entity)
+{
+    const int componentId = Component<TComponent>::GetId();
+    const int entityId = entity.GetId();
+
+    entityComponentSignatures[entityId].set(componentId, false);
+}
+
+template <typename TComponent>
+bool Registry::HasComponent(Entity entity) const
+{
+    const int componentId = Component<TComponent>::GetId();
+    const int entityId = entity.GetId();
+
+    return entityComponentSignatures[entityId].test(componentId);
 }
 
 #endif
