@@ -4,9 +4,8 @@
 #include "ECS.h"
 #include "../Logger/Logger.h"
 
-/**
- * Tester!
- */
+int IBaseComponent::nextId = 0;
+
 int Entity::GetId() const {
     return id;
 }
@@ -68,9 +67,24 @@ void Registry::Update()
     // TODO: Destroy entities that are pending.
 }
 
-void Registry::AddEntityToSystem(Entity entity)
+void Registry::AddEntityToSystems(Entity entity)
 {
-    // TODO: Add entity to system.
+    const int entityId = entity.GetId();
+    const Signature& entityComponentSignature = entityComponentSignatures[entityId];
+
+    // Loop through all systems and add entity to any system that has a matching component signature with the entity.
+    for (auto& system: systems)
+    {
+        const Signature& systemComponentSignature = system.second->GetComponentSignature();
+
+        // Perform bit wise check to compare entity and system component signatures.
+        bool isInterested = (entityComponentSignature & systemComponentSignature) == systemComponentSignature;
+
+        if (isInterested)
+        {
+            system.second->AddEntityToSystem(entity);
+        }
+    }
 }
 
 Entity Registry::CreateEntity()
