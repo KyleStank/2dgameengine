@@ -58,6 +58,8 @@ class Entity
         Entity& operator =(const Entity& other) = default;
         bool operator ==(const Entity& other) const { return id == other.GetId(); }
         bool operator !=(const Entity& other) const { return id != other.GetId(); }
+        bool operator >(const Entity& other) const { return id > other.id; }
+        bool operator <(const Entity& other) const { return id < other.id; }
 };
 
 /**

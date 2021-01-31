@@ -63,7 +63,15 @@ const Signature& System::GetComponentSignature() const
 
 void Registry::Update()
 {
-    // TODO: Create entities that are pending.
+    // Create all entities that are pending creation.
+    for (auto entity: pendingCreationEntities)
+    {
+        AddEntityToSystems(entity);
+    }
+
+    // Clear list of entities that were pending creation.
+    pendingCreationEntities.clear();
+
     // TODO: Destroy entities that are pending.
 }
 
@@ -94,7 +102,12 @@ Entity Registry::CreateEntity()
 
     // Create new entity instance and add to list of pending.
     Entity entity(entityId);
-    // pendingCreationEntities.insert(entity); // TODO: Fix error in this line.
+    pendingCreationEntities.insert(entity);
+
+    if (entityId >= entityComponentSignatures.size())
+    {
+        entityComponentSignatures.resize(entityId + 1);
+    }
 
     Logger::Log("Entity created with ID: " + std::to_string(entityId));
 

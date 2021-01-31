@@ -13,6 +13,7 @@ Game::Game()
 {
     _isRunning = false;
     _msPreviousFrame = MS_PER_FRAME;
+    registry = new Registry();
 
     Logger::Log("Game constructor invoked.");
 }
@@ -106,11 +107,8 @@ void Game::ProcessInput()
 
 void Game::Setup()
 {
-    // TODO: Create entities
-    // Entity tank = registry.CreateEntity();
-    // tank.AddComponent<TransformComponent>();
-    // tank.AddComponent<BoxColliderComponent>();
-    // tank.AddComponent<SpriteComponent>("./assets/images/tank.png");
+    Entity testEntity1 = registry->CreateEntity();
+    Entity testEntity2 = registry->CreateEntity();
 }
 
 void Game::Update()
