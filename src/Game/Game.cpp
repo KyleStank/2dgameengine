@@ -10,6 +10,8 @@
 #include "../ECS/ECS.h"
 #include "../Components/RigidbodyComponent.h"
 #include "../Components/TransformComponent.h"
+#include "../Components/SpriteComponent.h"
+#include "../Systems/RenderSystem.h"
 #include "../Systems/MovementSystem.h"
 
 Game::Game()
@@ -111,12 +113,20 @@ void Game::ProcessInput()
 void Game::Setup()
 {
     // Add systems.
+    registry->AddSystem<RenderSystem>();
     registry->AddSystem<MovementSystem>();
 
     // Setup tank entity.
     Entity tankEntity = registry->CreateEntity();
-    tankEntity.AddComponent<TransformComponent>(glm::vec2(10.0, 20.0), glm::vec2(1.0, 1.0), 0.0);
-    tankEntity.AddComponent<RigidbodyComponent>(glm::vec2(25.0, 15.0));
+    tankEntity.AddComponent<TransformComponent>(glm::vec2(25.0, 5.0), glm::vec2(1.0, 1.0), 0.0);
+    tankEntity.AddComponent<RigidbodyComponent>(glm::vec2(50.0, 10.0));
+    tankEntity.AddComponent<SpriteComponent>(35, 15);
+
+    // Setup truck entity.
+    Entity truckEntity = registry->CreateEntity();
+    truckEntity.AddComponent<TransformComponent>(glm::vec2(10.0, 20.0), glm::vec2(1.0, 1.0), 0.0);
+    truckEntity.AddComponent<RigidbodyComponent>(glm::vec2(5.0, 50.0));
+    truckEntity.AddComponent<SpriteComponent>(20, 70);
 }
 
 void Game::Update()
@@ -134,7 +144,7 @@ void Game::Render()
     SDL_SetRenderDrawColor(_renderer, 21, 21, 21, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(_renderer);
 
-    // TODO: Render game objects
+    registry->GetSystem<RenderSystem>().Update(_renderer);
     
     // Swap back buffer with front buffer.
     SDL_RenderPresent(_renderer);
