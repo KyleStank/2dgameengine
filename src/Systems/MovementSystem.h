@@ -4,25 +4,28 @@
 #include <vector>
 
 #include "../ECS/ECS.h"
+#include "../Components/RigidbodyComponent.h"
+#include "../Components/TransformComponent.h"
 
 class MovementSystem: public System
 {
     public:
         MovementSystem()
         {
-            // TODO:
-            // RequireComponent<TransformComponent>();
-            // RequireComponent<VelocityComponent>();
+            RequireComponent<TransformComponent>();
+            RequireComponent<RigidbodyComponent>();
         }
 
         void Update(double deltaTime)
         {
-            // TODO:
-            // Loop all entities that the system is interested in
-            // for (auto entitiy: GetEntities())
-            // {
-                // TODO: Update entity position based on its velocity.
-            // }
+            for (const Entity entity: GetSystemEntities())
+            {
+                const RigidbodyComponent rigidbody = entity.GetComponent<RigidbodyComponent>();
+                TransformComponent& transform = entity.GetComponent<TransformComponent>();
+
+                transform.position.x += rigidbody.velocity.x * deltaTime;
+                transform.position.y += rigidbody.velocity.y * deltaTime;
+            }
         }
 };
 

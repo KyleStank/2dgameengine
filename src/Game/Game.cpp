@@ -10,6 +10,7 @@
 #include "../ECS/ECS.h"
 #include "../Components/RigidbodyComponent.h"
 #include "../Components/TransformComponent.h"
+#include "../Systems/MovementSystem.h"
 
 Game::Game()
 {
@@ -109,20 +110,22 @@ void Game::ProcessInput()
 
 void Game::Setup()
 {
+    // Add systems.
+    registry->AddSystem<MovementSystem>();
+
     // Setup tank entity.
     Entity tankEntity = registry->CreateEntity();
-
     tankEntity.AddComponent<TransformComponent>(glm::vec2(10.0, 20.0), glm::vec2(1.0, 1.0), 0.0);
     tankEntity.AddComponent<RigidbodyComponent>(glm::vec2(25.0, 15.0));
-    tankEntity.RemoveComponent<TransformComponent>();
 }
 
 void Game::Update()
 {
-    // TODO: Invoke systems
-    // MovementSystem.Update();
-    // CollisionSystem.Update();
-    // DamageSystem.Update();
+    // Update systems.
+    registry->GetSystem<MovementSystem>().Update(_deltaTime);
+
+    // Update registry to process pending entities.
+    registry->Update();
 }
 
 void Game::Render()
@@ -159,9 +162,9 @@ void Game::Run()
     while (_isRunning)
     {
         ProcessInput();
+        EnforceFrameRate();
         Update();
         Render();
-        EnforceFrameRate();
     }
 }
 

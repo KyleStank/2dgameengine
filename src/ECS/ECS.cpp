@@ -64,7 +64,7 @@ const Signature& System::GetComponentSignature() const
 void Registry::Update()
 {
     // Create all entities that are pending creation.
-    for (auto entity: pendingCreationEntities)
+    for (const Entity entity: pendingCreationEntities)
     {
         AddEntityToSystems(entity);
     }
