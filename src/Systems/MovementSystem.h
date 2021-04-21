@@ -16,7 +16,7 @@ class MovementSystem: public System
             RequireComponent<RigidbodyComponent>();
         }
 
-        void Update(double deltaTime)
+        void Update(const double deltaTime)
         {
             for (const Entity entity: GetSystemEntities())
             {
