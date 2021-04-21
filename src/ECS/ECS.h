@@ -71,40 +71,6 @@ class Entity
         bool operator <(const Entity& other) const { return id < other.id; }
 };
 
-// Entity template function implementations.
-// Component template implementations.
-template <typename TComponent, typename ...TArgs>
-void Entity::AddComponent(TArgs&& ...args)
-{
-    const int componentId = Component<TComponent>::GetId();
-    const int entityId = GetId();
-}
-
-template <typename TComponent>
-void Entity::RemoveComponent()
-{
-    const int componentId = Component<TComponent>::GetId();
-    const int entityId = GetId();
-}
-
-template <typename TComponent>
-bool Entity::HasComponent() const
-{
-    const int componentId = Component<TComponent>::GetId();
-    const int entityId = GetId();
-
-    return true;
-}
-
-template <typename TComponent>
-TComponent& Entity::GetComponent() const
-{
-    const int componentId = Component<TComponent>::GetId();
-    const int entityId = GetId();
-
-    return nullptr;
-}
-
 /**
  * A System handles processing all entities that contain specific components.
  * A component signature or, bitset, is used to determine which components the system requires each entity to have.
@@ -127,15 +93,6 @@ class System
 
         template <typename TComponent> void RequireComponent();
 };
-
-// System template function implementations.
-
-template <typename TComponent>
-void System::RequireComponent()
-{
-    const int componentId = Component<TComponent>::GetId();
-    componentSignature.set(componentId);
-}
 
 /**
  * Base pool interface.
@@ -284,6 +241,8 @@ void Registry::RemoveComponent(Entity entity)
     const int entityId = entity.GetId();
 
     entityComponentSignatures[entityId].set(componentId, false);
+
+    Logger::Log("Component[" + std::to_string(componentId) + "] was removed from Entity[" + std::to_string(entityId) + "].");
 }
 
 template <typename TComponent>
@@ -334,6 +293,41 @@ TSystem& Registry::GetSystem() const
 {
     auto system = systems.find(std::type_index(typeid(TSystem)));
     return *(std::static_pointer_cast<TSystem>(system->second));
+}
+
+// System template function implementations.
+
+template <typename TComponent>
+void System::RequireComponent()
+{
+    const int componentId = Component<TComponent>::GetId();
+    componentSignature.set(componentId);
+}
+
+// Entity template function implementations.
+// Component template implementations.
+template <typename TComponent, typename ...TArgs>
+void Entity::AddComponent(TArgs&& ...args)
+{
+    registry->AddComponent<TComponent>(*this, std::forward<TArgs>(args)...);
+}
+
+template <typename TComponent>
+void Entity::RemoveComponent()
+{
+    registry->RemoveComponent<TComponent>(*this);
+}
+
+template <typename TComponent>
+bool Entity::HasComponent() const
+{
+    return registry->HasComponent<TComponent>(*this);
+}
+
+template <typename TComponent>
+TComponent& Entity::GetComponent() const
+{
+    return registry->GetComponent<TComponent>(*this);
 }
 
 #endif
