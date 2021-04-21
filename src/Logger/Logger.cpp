@@ -2,7 +2,6 @@
 #include <string>
 #include <sstream>
 #include <ctime>
-
 #include "Logger.h"
 
 const std::string Logger::_monthString[12] = { "Jan", "Feb", "Mar", "Apr", "May", "June", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec" };

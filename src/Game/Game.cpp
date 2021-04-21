@@ -1,10 +1,8 @@
 #include <iostream>
-
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <glm/glm.hpp>
 #include <lua/lua.h>
-
 #include "Game.h"
 #include "../Logger/Logger.h"
 #include "../ECS/ECS.h"
@@ -18,7 +16,9 @@ Game::Game()
 {
     _isRunning = false;
     _msPreviousFrame = MS_PER_FRAME;
-    registry = std::make_unique<Registry>();
+    
+    _registry = std::make_unique<Registry>();
+    _resources = std::make_unique<Resources>();
 
     Logger::Log("Game constructor invoked.");
 }
@@ -112,30 +112,34 @@ void Game::ProcessInput()
 
 void Game::Setup()
 {
+    // Load textures from Resources.
+    _resources->LoadTexture(_renderer, "tank-image", "./assets/images/tank-panther-right.png");
+    _resources->LoadTexture(_renderer, "truck-image", "./assets/images/truck-ford-right.png");
+
     // Add systems.
-    registry->AddSystem<RenderSystem>();
-    registry->AddSystem<MovementSystem>();
+    _registry->AddSystem<RenderSystem>();
+    _registry->AddSystem<MovementSystem>();
 
     // Setup tank entity.
-    Entity tankEntity = registry->CreateEntity();
-    tankEntity.AddComponent<TransformComponent>(glm::vec2(25.0, 5.0), glm::vec2(1.0, 1.0), 0.0);
-    tankEntity.AddComponent<RigidbodyComponent>(glm::vec2(50.0, 10.0));
-    tankEntity.AddComponent<SpriteComponent>(35, 15);
+    Entity tankEntity = _registry->CreateEntity();
+    tankEntity.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
+    tankEntity.AddComponent<RigidbodyComponent>(glm::vec2(50.0, 0.0));
+    tankEntity.AddComponent<SpriteComponent>("tank-image", 32, 32);
 
     // Setup truck entity.
-    Entity truckEntity = registry->CreateEntity();
-    truckEntity.AddComponent<TransformComponent>(glm::vec2(10.0, 20.0), glm::vec2(1.0, 1.0), 0.0);
-    truckEntity.AddComponent<RigidbodyComponent>(glm::vec2(5.0, 50.0));
-    truckEntity.AddComponent<SpriteComponent>(20, 70);
+    Entity truckEntity = _registry->CreateEntity();
+    truckEntity.AddComponent<TransformComponent>(glm::vec2(10.0, 50.0), glm::vec2(2.0, 2.0), 90.0);
+    truckEntity.AddComponent<RigidbodyComponent>(glm::vec2(0.0, 20.0));
+    truckEntity.AddComponent<SpriteComponent>("truck-image", 32, 32);
 }
 
 void Game::Update()
 {
     // Update systems.
-    registry->GetSystem<MovementSystem>().Update(_deltaTime);
+    _registry->GetSystem<MovementSystem>().Update(_deltaTime);
 
     // Update registry to process pending entities.
-    registry->Update();
+    _registry->Update();
 }
 
 void Game::Render()
@@ -144,7 +148,7 @@ void Game::Render()
     SDL_SetRenderDrawColor(_renderer, 21, 21, 21, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(_renderer);
 
-    registry->GetSystem<RenderSystem>().Update(_renderer);
+    _registry->GetSystem<RenderSystem>().Update(_renderer, _resources);
     
     // Swap back buffer with front buffer.
     SDL_RenderPresent(_renderer);

@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include "../ECS/ECS.h"
+#include "../Resources/Resources.h"
 
 const int FPS = 60;
 const int MS_PER_FRAME = 1000 / FPS;
@@ -17,7 +18,8 @@ class Game
         SDL_Window* _window;
         SDL_Renderer* _renderer;
         
-        std::unique_ptr<Registry> registry;
+        std::unique_ptr<Registry> _registry;
+        std::unique_ptr<Resources> _resources;
     
     public:
         Game();

@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <string>
-
 #include "ECS.h"
 #include "../Logger/Logger.h"
 
