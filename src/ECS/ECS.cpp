@@ -102,6 +102,8 @@ Entity Registry::CreateEntity()
 
     // Create new entity instance and add to list of pending.
     Entity entity(entityId);
+    entity.registry = this;
+    
     pendingCreationEntities.insert(entity);
 
     if (entityId >= static_cast<int>(entityComponentSignatures.size()))

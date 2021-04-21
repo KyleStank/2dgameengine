@@ -112,8 +112,15 @@ void Game::Setup()
     // Setup tank entity.
     Entity tankEntity = registry->CreateEntity();
 
-    registry->AddComponent<TransformComponent>(tankEntity, glm::vec2(10.0, 20.0), glm::vec2(1.0, 1.0), 0.0);
-    registry->AddComponent<RigidbodyComponent>(tankEntity, glm::vec2(45.5, 10.25));
+    tankEntity.AddComponent<TransformComponent>(glm::vec2(10.0, 20.0), glm::vec2(1.0, 1.0), 0.0);
+
+    // registry->AddComponent<TransformComponent>(tankEntity, glm::vec2(10.0, 20.0), glm::vec2(1.0, 1.0), 0.0);
+    // TransformComponent& comp = registry->GetComponent<TransformComponent>(tankEntity);
+
+    // tankEntity.AddComponent<TransformComponent>(glm::vec2(10.0, 20.0), glm::vec2(1.0, 1.0), 0.0);
+
+    // registry->AddComponent<TransformComponent>(tankEntity, glm::vec2(10.0, 20.0), glm::vec2(1.0, 1.0), 0.0);
+    // registry->AddComponent<RigidbodyComponent>(tankEntity, glm::vec2(45.5, 10.25));
 }
 
 void Game::Update()

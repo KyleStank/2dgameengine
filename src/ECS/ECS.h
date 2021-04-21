@@ -54,8 +54,15 @@ class Entity
         Entity(int id): id(id) {};
         Entity(const Entity& entity) = default;
         ~Entity() = default;
+
+        class Registry* registry;
         
         int GetId() const;
+
+        template <typename TComponent, typename ...TArgs> void AddComponent(TArgs&& ...args);
+        template <typename TComponent> void RemoveComponent();
+        template <typename TComponent> bool HasComponent() const;
+        template <typename TComponent> TComponent& GetComponent() const;
 
         Entity& operator =(const Entity& other) = default;
         bool operator ==(const Entity& other) const { return id == other.GetId(); }
@@ -63,6 +70,40 @@ class Entity
         bool operator >(const Entity& other) const { return id > other.id; }
         bool operator <(const Entity& other) const { return id < other.id; }
 };
+
+// Entity template function implementations.
+// Component template implementations.
+template <typename TComponent, typename ...TArgs>
+void Entity::AddComponent(TArgs&& ...args)
+{
+    const int componentId = Component<TComponent>::GetId();
+    const int entityId = GetId();
+}
+
+template <typename TComponent>
+void Entity::RemoveComponent()
+{
+    const int componentId = Component<TComponent>::GetId();
+    const int entityId = GetId();
+}
+
+template <typename TComponent>
+bool Entity::HasComponent() const
+{
+    const int componentId = Component<TComponent>::GetId();
+    const int entityId = GetId();
+
+    return true;
+}
+
+template <typename TComponent>
+TComponent& Entity::GetComponent() const
+{
+    const int componentId = Component<TComponent>::GetId();
+    const int entityId = GetId();
+
+    return nullptr;
+}
 
 /**
  * A System handles processing all entities that contain specific components.
@@ -126,7 +167,7 @@ class Pool: public IPool
         void Add (T obj) { data.push_back(obj); }
         void Set(int index, T obj) { data[index] = obj; }
 
-        T& Get(int index) { static_cast<T>(data[index]); }
+        T& Get(int index) { return static_cast<T&>(data[index]); }
 
         T& operator[](unsigned int index) { return data[index]; }
 };
@@ -252,6 +293,16 @@ bool Registry::HasComponent(Entity entity) const
     const int entityId = entity.GetId();
 
     return entityComponentSignatures[entityId].test(componentId);
+}
+
+template <typename TComponent>
+TComponent& Registry::GetComponent(Entity entity) const
+{
+    const int componentId = Component<TComponent>::GetId();
+    const int entityId = entity.GetId();
+
+    std::shared_ptr<Pool<TComponent>> componentPool = std::static_pointer_cast<Pool<TComponent>>(componentPools[componentId]);
+    return componentPool->Get(entityId);
 }
 
 // System template implementations.
