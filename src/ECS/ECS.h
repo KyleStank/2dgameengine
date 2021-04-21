@@ -8,6 +8,8 @@
 #include <set>
 #include <memory>
 
+#include "../Logger/Logger.h"
+
 const unsigned int MAX_COMPONENTS = 32;
 
 /**
@@ -100,7 +102,7 @@ void System::RequireComponent()
 class IPool
 {
     public:
-        virtual ~IPool(); // Adding virtual requires the IPool class to be abstract.
+        virtual ~IPool() {}
 };
 
 /**
@@ -116,8 +118,8 @@ class Pool: public IPool
         Pool(int size = 100) { data.resize(size); }
         ~Pool() = default;
 
-        bool isEmpty() const { return data.empty(); }
-        int getSize() const { return static_cast<int>(data.size()); }
+        bool IsEmpty() const { return data.empty(); }
+        int GetSize() const { return static_cast<int>(data.size()); }
 
         void Resize(int size) { return data.resize(size); }
         void Clear() { data.clear(); }
@@ -217,7 +219,7 @@ void Registry::AddComponent(Entity entity, TArgs&& ...args)
     std::shared_ptr<Pool<TComponent>> componentPool = std::static_pointer_cast<Pool<TComponent>>(componentPools[componentId]);
 
     // If the entity ID is greater than the size of the component pool, resize it to the total number of entities.
-    if (entityId >= componentPool->getSize())
+    if (entityId >= componentPool->GetSize())
     {
         componentPool->Resize(numEntities);
     }
@@ -230,6 +232,8 @@ void Registry::AddComponent(Entity entity, TArgs&& ...args)
 
     // Change the component signature of the entity and set the component to enabled.
     entityComponentSignatures[entityId].set(componentId);
+
+    Logger::Log("Component[" + std::to_string(componentId) + "] was added to Entity[" + std::to_string(entityId) + "].");
 }
 
 template <typename TComponent>

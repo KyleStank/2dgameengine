@@ -8,6 +8,8 @@
 #include "Game.h"
 #include "../Logger/Logger.h"
 #include "../ECS/ECS.h"
+#include "../Components/RigidbodyComponent.h"
+#include "../Components/TransformComponent.h"
 
 Game::Game()
 {
@@ -107,8 +109,11 @@ void Game::ProcessInput()
 
 void Game::Setup()
 {
-    Entity testEntity1 = registry->CreateEntity();
-    Entity testEntity2 = registry->CreateEntity();
+    // Setup tank entity.
+    Entity tankEntity = registry->CreateEntity();
+
+    registry->AddComponent<TransformComponent>(tankEntity, glm::vec2(10.0, 20.0), glm::vec2(1.0, 1.0), 0.0);
+    registry->AddComponent<RigidbodyComponent>(tankEntity, glm::vec2(45.5, 10.25));
 }
 
 void Game::Update()
