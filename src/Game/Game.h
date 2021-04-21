@@ -17,7 +17,7 @@ class Game
         SDL_Window* _window;
         SDL_Renderer* _renderer;
         
-        Registry* registry;
+        std::unique_ptr<Registry> registry;
     
     public:
         Game();

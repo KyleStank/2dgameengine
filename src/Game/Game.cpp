@@ -13,7 +13,7 @@ Game::Game()
 {
     _isRunning = false;
     _msPreviousFrame = MS_PER_FRAME;
-    registry = new Registry();
+    registry = std::make_unique<Registry>();
 
     Logger::Log("Game constructor invoked.");
 }

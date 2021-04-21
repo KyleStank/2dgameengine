@@ -117,7 +117,7 @@ class Pool: public IPool
         ~Pool() = default;
 
         bool isEmpty() const { return data.empty(); }
-        int getSize() const { return data.size(); }
+        int getSize() const { return static_cast<int>(data.size()); }
 
         void Resize(int size) { return data.resize(size); }
         void Clear() { data.clear(); }
@@ -143,7 +143,7 @@ class Registry
          * [vector index] = component ID.
          * [pool index] = entity ID.
          */
-        std::vector<IPool*> componentPools;
+        std::vector<std::shared_ptr<IPool>> componentPools;
 
         /**
          * Vector of component signatures. The signature lets us know which components are enabled for an entity.
@@ -155,7 +155,7 @@ class Registry
          * Map of active systems.
          * [index] = system type ID.
          */
-        std::unordered_map<std::type_index, System*> systems;
+        std::unordered_map<std::type_index, std::shared_ptr<System>> systems;
 
         /**
          * Set of entities that will be created in the next Registry::Update().
@@ -201,7 +201,7 @@ void Registry::AddComponent(Entity entity, TArgs&& ...args)
     const int entityId = entity.GetId();
 
     // If the component ID is greater than the size of componentPools, add one more element to the vector.
-    if (componentId >= componentPools.size())
+    if (componentId >= static_cast<int>(componentPools.size()))
     {
         componentPools.resize(componentId + 1, nullptr);
     }
@@ -209,12 +209,12 @@ void Registry::AddComponent(Entity entity, TArgs&& ...args)
     // If there isn't a pool for the component ID, create one.
     if (!componentPools[componentId])
     {
-        Pool<TComponent>* pool = new Pool<TComponent>();
+        std::shared_ptr<Pool<TComponent>> pool = std::make_shared<Pool<TComponent>>();
         componentPools[componentId] = pool;
     }
 
     // Get component pool pointer of the component ID.
-    Pool<TComponent>* componentPool = Pool<TComponent>(componentPools[componentId]);
+    std::shared_ptr<Pool<TComponent>> componentPool = std::static_pointer_cast<Pool<TComponent>>(componentPools[componentId]);
 
     // If the entity ID is greater than the size of the component pool, resize it to the total number of entities.
     if (entityId >= componentPool->getSize())
@@ -255,7 +255,7 @@ template <typename TSystem, typename ...TArgs>
 void Registry::AddSystem(TArgs&& ...args)
 {
     // Create new system.
-    TSystem* system = new TSystem(std::forward<TArgs>(args)...);
+    std::shared_ptr<TSystem> system = std::make_shared<TSystem>(std::forward<TArgs>(args)...);
 
     // Add new system to list.
     systems.insert(std::make_pair(std::type_index(typeid(TSystem)), system));
