@@ -89,6 +89,106 @@ void Game::Initialize()
     _isRunning = true;
 }
 
+void Game::Run()
+{
+    LoadLevel(1);
+    Setup();
+    while (_isRunning)
+    {
+        ProcessInput();
+        EnforceFrameRate();
+        Update();
+        Render();
+    }
+    Destroy();
+}
+
+// TODO: Clean up. Remove inline-imports, move Explode() somewhere else.
+// Delimiter: https://stackoverflow.com/questions/890164/how-can-i-split-a-string-by-a-delimiter-into-an-array
+#include <string>
+#include <fstream>
+#include <vector>
+
+std::vector<std::string> Explode(const std::string& str, const char& ch)
+{
+    std::string next;
+    std::vector<std::string> result;
+
+    // For each character in the string.
+    for (std::string::const_iterator it = str.begin(); it != str.end(); it++)
+    {
+        // If we've hit the terminal character.
+        if (*it == ch)
+        {
+            // If we have some characters accumulated.
+            if (!next.empty())
+            {
+                // Add them to the result vector.
+                result.push_back(next);
+                next.clear();
+            }
+        }
+        else
+        {
+            // Accumulate the next character into the sequence.
+            next += *it;
+        }
+    }
+
+    if (!next.empty())
+    {
+        result.push_back(next);
+    }
+
+    return result;
+}
+
+void Game::LoadLevel(int level)
+{
+    // Load textures from Resources.
+    _resources->LoadTexture(_renderer, "jungle-tileset", "./assets/tilemaps/jungle.png");
+    _resources->LoadTexture(_renderer, "tank-image", "./assets/images/tank-panther-right.png");
+    _resources->LoadTexture(_renderer, "truck-image", "./assets/images/truck-ford-right.png");
+
+    // Add systems.
+    _registry->AddSystem<RenderSystem>();
+    _registry->AddSystem<MovementSystem>();
+
+    // Generate tile maps.
+    std::ifstream ifs("./assets/tilemaps/jungle.map");
+    std::string content = std::string(
+        std::istreambuf_iterator<char>(ifs),
+        std::istreambuf_iterator<char>()
+    );
+    std::vector<std::string> mapContents = Explode(content, ',');
+    int mapContentsSize = static_cast<int>(mapContents.size());
+    for (int i = 0; i < mapContentsSize; i++)
+    {
+        int mapIndex = std::stoi(mapContents[i]);
+
+        Entity tileEntity = _registry->CreateEntity();
+        tileEntity.AddComponent<TransformComponent>(glm::vec2((i * 32.0), 0.0), glm::vec2(1.0, 1.0), 0.0);
+        tileEntity.AddComponent<SpriteComponent>("jungle-tileset", 32, 32, 0, 0);
+    }
+
+    // Setup tank entity.
+    Entity tankEntity = _registry->CreateEntity();
+    tankEntity.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
+    tankEntity.AddComponent<RigidbodyComponent>(glm::vec2(50.0, 0.0));
+    tankEntity.AddComponent<SpriteComponent>("tank-image", 32, 32);
+
+    // Setup truck entity.
+    Entity truckEntity = _registry->CreateEntity();
+    truckEntity.AddComponent<TransformComponent>(glm::vec2(10.0, 50.0), glm::vec2(2.0, 2.0), 90.0);
+    truckEntity.AddComponent<RigidbodyComponent>(glm::vec2(0.0, 20.0));
+    truckEntity.AddComponent<SpriteComponent>("truck-image", 32, 32);
+}
+
+void Game::Setup()
+{
+    
+}
+
 void Game::ProcessInput()
 {
     SDL_Event sdlEvent;
@@ -110,27 +210,20 @@ void Game::ProcessInput()
     }
 }
 
-void Game::Setup()
+void Game::EnforceFrameRate()
 {
-    // Load textures from Resources.
-    _resources->LoadTexture(_renderer, "tank-image", "./assets/images/tank-panther-right.png");
-    _resources->LoadTexture(_renderer, "truck-image", "./assets/images/truck-ford-right.png");
+    // If we are running too fast, waste some time until we reach MS_PER_FRAME.
+    Uint32 timeToWait = MS_PER_FRAME - (SDL_GetTicks() - _msPreviousFrame);
+    if (timeToWait > 0 && timeToWait <= _msPreviousFrame)
+    {
+        SDL_Delay(timeToWait);
+    }
 
-    // Add systems.
-    _registry->AddSystem<RenderSystem>();
-    _registry->AddSystem<MovementSystem>();
+    // Calculate the number of seconds since the last frame.
+    _deltaTime = (SDL_GetTicks() - _msPreviousFrame) / 1000.0;
 
-    // Setup tank entity.
-    Entity tankEntity = _registry->CreateEntity();
-    tankEntity.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
-    tankEntity.AddComponent<RigidbodyComponent>(glm::vec2(50.0, 0.0));
-    tankEntity.AddComponent<SpriteComponent>("tank-image", 32, 32);
-
-    // Setup truck entity.
-    Entity truckEntity = _registry->CreateEntity();
-    truckEntity.AddComponent<TransformComponent>(glm::vec2(10.0, 50.0), glm::vec2(2.0, 2.0), 90.0);
-    truckEntity.AddComponent<RigidbodyComponent>(glm::vec2(0.0, 20.0));
-    truckEntity.AddComponent<SpriteComponent>("truck-image", 32, 32);
+    // Store "previous" frame time.
+    _msPreviousFrame = SDL_GetTicks();
 }
 
 void Game::Update()
@@ -152,34 +245,6 @@ void Game::Render()
     
     // Swap back buffer with front buffer.
     SDL_RenderPresent(_renderer);
-}
-
-void Game::EnforceFrameRate()
-{
-    // If we are running too fast, waste some time until we reach MS_PER_FRAME.
-    Uint32 timeToWait = MS_PER_FRAME - (SDL_GetTicks() - _msPreviousFrame);
-    if (timeToWait > 0 && timeToWait <= _msPreviousFrame)
-    {
-        SDL_Delay(timeToWait);
-    }
-
-    // Calculate the number of seconds since the last frame.
-    _deltaTime = (SDL_GetTicks() - _msPreviousFrame) / 1000.0;
-
-    // Store "previous" frame time.
-    _msPreviousFrame = SDL_GetTicks();
-}
-
-void Game::Run()
-{
-    Setup();
-    while (_isRunning)
-    {
-        ProcessInput();
-        EnforceFrameRate();
-        Update();
-        Render();
-    }
 }
 
 void Game::Destroy()

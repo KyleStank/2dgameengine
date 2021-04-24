@@ -29,12 +29,15 @@ class Game
         int windowHeight;
 
         void Initialize();
-        void Setup();
+
         void Run();
+        void LoadLevel(int number);
+        void Setup();
         void ProcessInput();
+        void EnforceFrameRate();
         void Update();
         void Render();
-        void EnforceFrameRate();
+
         void Destroy();
 };
 
