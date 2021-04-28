@@ -1,9 +1,12 @@
 #include <iostream>
+#include <string>
+#include <vector>
 #include <glm/glm.hpp>
 #include <lua/lua.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "game.h"
+#include "../io.h"
 #include "../components/rigidbody_component.h"
 #include "../components/transform_component.h"
 #include "../components/sprite_component.h"
@@ -12,6 +15,7 @@
 #include "../systems/render_system.h"
 #include "../systems/movement_system.h"
 
+#include <iostream>
 engine::Game::Game()
 {
     _isRunning = false;
@@ -100,7 +104,6 @@ void engine::Game::Run()
         Update();
         Render();
     }
-    Destroy();
 }
 
 void engine::Game::LoadLevel(int level)
