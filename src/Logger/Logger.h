@@ -29,9 +29,15 @@ namespace engine
 
         public:
             static std::vector<LogEntry> messages;
+
             static void Log(const std::string& msg);
+            static void Log(const char& msg);
+
             static void Warn(const std::string& msg);
+            static void Warn(const char& msg);
+
             static void Error(const std::string& msg);
+            static void Error(const char& msg);
     };
 }
 

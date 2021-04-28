@@ -41,6 +41,11 @@ void engine::Logger::Log(const std::string& msg)
     Logger::messages.push_back(logEntry);
 }
 
+void engine::Logger::Log(const char& msg)
+{
+    Logger::Log(std::string(1, msg));
+}
+
 void engine::Logger::Warn(const std::string& msg)
 {
     LogEntry logEntry;
@@ -52,6 +57,11 @@ void engine::Logger::Warn(const std::string& msg)
     Logger::messages.push_back(logEntry);
 }
 
+void engine::Logger::Warn(const char& msg)
+{
+    Logger::Warn(std::string(1, msg));
+}
+
 void engine::Logger::Error(const std::string& msg)
 {
     LogEntry logEntry;
@@ -61,4 +71,9 @@ void engine::Logger::Error(const std::string& msg)
     std::cerr << "\033[1;31m" << logEntry.message << "\033[0m" << std::endl;
 
     Logger::messages.push_back(logEntry);
+}
+
+void engine::Logger::Error(const char& msg)
+{
+    Logger::Error(std::string(1, msg));
 }
