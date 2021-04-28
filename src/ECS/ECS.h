@@ -7,7 +7,7 @@
 #include <typeindex>
 #include <set>
 #include <memory>
-#include "../Logger/Logger.h"
+#include "../logger/logger.h"
 
 const unsigned int MAX_COMPONENTS = 32;
 

@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <string>
-#include "ECS.h"
-#include "../Logger/Logger.h"
+#include "ecs.h"
+#include "../logger/logger.h"
 
 int IBaseComponent::nextId = 0;
 

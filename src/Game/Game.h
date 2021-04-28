@@ -2,8 +2,8 @@
 #define GAME_H
 
 #include <SDL2/SDL.h>
-#include "../ECS/ECS.h"
-#include "../Resources/Resources.h"
+#include "../ecs/ecs.h"
+#include "../resources/resources.h"
 
 const int FPS = 60;
 const int MS_PER_FRAME = 1000 / FPS;

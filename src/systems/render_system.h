@@ -3,10 +3,10 @@
 
 #include <vector>
 #include <SDL2/SDL.h>
-#include "../ECS/ECS.h"
-#include "../Components/TransformComponent.h"
-#include "../Components/SpriteComponent.h"
-#include "../Resources/Resources.h"
+#include "../ecs/ecs.h"
+#include "../components/transform_component.h"
+#include "../components/sprite_component.h"
+#include "../resources/resources.h"
 
 class RenderSystem: public System
 {

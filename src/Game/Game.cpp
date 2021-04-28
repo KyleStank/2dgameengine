@@ -3,14 +3,14 @@
 #include <SDL2/SDL_image.h>
 #include <glm/glm.hpp>
 #include <lua/lua.h>
-#include "Game.h"
-#include "../Logger/Logger.h"
-#include "../ECS/ECS.h"
-#include "../Components/RigidbodyComponent.h"
-#include "../Components/TransformComponent.h"
-#include "../Components/SpriteComponent.h"
-#include "../Systems/RenderSystem.h"
-#include "../Systems/MovementSystem.h"
+#include "game.h"
+#include "../logger/logger.h"
+#include "../ecs/ecs.h"
+#include "../components/rigidbody_component.h"
+#include "../components/transform_component.h"
+#include "../components/sprite_component.h"
+#include "../systems/render_system.h"
+#include "../systems/movement_system.h"
 
 Game::Game()
 {
@@ -154,22 +154,39 @@ void Game::LoadLevel(int level)
     _registry->AddSystem<RenderSystem>();
     _registry->AddSystem<MovementSystem>();
 
-    // Generate tile maps.
-    std::ifstream ifs("./assets/tilemaps/jungle.map");
-    std::string content = std::string(
-        std::istreambuf_iterator<char>(ifs),
-        std::istreambuf_iterator<char>()
-    );
-    std::vector<std::string> mapContents = Explode(content, ',');
-    int mapContentsSize = static_cast<int>(mapContents.size());
-    for (int i = 0; i < mapContentsSize; i++)
-    {
-        int mapIndex = std::stoi(mapContents[i]);
+    // // Generate tile maps.
+    // std::ifstream ifs("./assets/tilemaps/jungle.map");
+    // std::string content = std::string(
+    //     std::istreambuf_iterator<char>(ifs),
+    //     std::istreambuf_iterator<char>()
+    // );
+    // std::vector<std::string> mapContents = Explode(content, ',');
+    // int mapContentsSize = static_cast<int>(mapContents.size());
+    // for (int i = 0; i < mapContentsSize; i++)
+    // {
+    //     int mapIndex = std::stoi(mapContents[i]);
 
-        Entity tileEntity = _registry->CreateEntity();
-        tileEntity.AddComponent<TransformComponent>(glm::vec2((i * 32.0), 0.0), glm::vec2(1.0, 1.0), 0.0);
-        tileEntity.AddComponent<SpriteComponent>("jungle-tileset", 32, 32, 0, 0);
-    }
+    //     Entity tileEntity = _registry->CreateEntity();
+    //     tileEntity.AddComponent<TransformComponent>(glm::vec2((i * 32.0), 0.0), glm::vec2(1.0, 1.0), 0.0);
+    //     tileEntity.AddComponent<SpriteComponent>("jungle-tileset", 32, 32, 0, 0);
+    // }
+
+    // int count = 0;
+    // string line;
+ 
+    // /* Creating input filestream */ 
+    // ifstream file("main.cpp");
+    // while (getline(file, line))
+    //     count++;
+
+    // int count = 0;
+    // std::string line;
+
+    // std::ifstream ifs("./assets/tilemaps/jungle.map");
+    // while (std::getline(ifs, line))
+    // {
+    //     count++;
+    // }
 
     // Setup tank entity.
     Entity tankEntity = _registry->CreateEntity();
