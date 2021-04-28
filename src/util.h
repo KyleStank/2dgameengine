@@ -1,6 +1,6 @@
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef ENGINE_UTIL_H
+#define ENGINE_UTIL_H
 
-
+namespace engine {}
 
 #endif

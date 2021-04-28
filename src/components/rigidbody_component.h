@@ -1,16 +1,19 @@
-#ifndef RIGIDBODYCOMPONENT_H
-#define RIGIDBODYCOMPONENT_H
+#ifndef ENGINE_RIGIDBODYCOMPONENT_H
+#define ENGINE_RIGIDBODYCOMPONENT_H
 
 #include <glm/vec2.hpp>
 
-struct RigidbodyComponent
+namespace engine
 {
-    glm::vec2 velocity;
-
-    RigidbodyComponent(glm::vec2 velocity = glm::vec2(0.0, 0.0))
+    struct RigidbodyComponent
     {
-        this->velocity = velocity;
-    }
-};
+        glm::vec2 velocity;
+
+        RigidbodyComponent(glm::vec2 velocity = glm::vec2(0.0, 0.0))
+        {
+            this->velocity = velocity;
+        }
+    };
+}
 
 #endif

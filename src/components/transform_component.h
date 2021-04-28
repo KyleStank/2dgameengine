@@ -1,20 +1,23 @@
-#ifndef TRANSFORMCOMPONENT_H
-#define TRANSFORMCOMPONENT_H
+#ifndef ENGINE_TRANSFORMCOMPONENT_H
+#define ENGINE_TRANSFORMCOMPONENT_H
 
 #include <glm/vec2.hpp>
 
-struct TransformComponent
+namespace engine
 {
-    glm::vec2 position;
-    glm::vec2 scale;
-    double rotation;
-
-    TransformComponent(glm::vec2 position = glm::vec2(0, 0), glm::vec2 scale = glm::vec2(1, 1), double rotation = 0.0)
+    struct TransformComponent
     {
-        this->position = position;
-        this->scale = scale;
-        this->rotation = rotation;
-    }
-};
+        glm::vec2 position;
+        glm::vec2 scale;
+        double rotation;
+
+        TransformComponent(glm::vec2 position = glm::vec2(0, 0), glm::vec2 scale = glm::vec2(1, 1), double rotation = 0.0)
+        {
+            this->position = position;
+            this->scale = scale;
+            this->rotation = rotation;
+        }
+    };
+}
 
 #endif

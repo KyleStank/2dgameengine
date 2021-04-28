@@ -1,13 +1,12 @@
-#include <iostream>
-#include <string>
-#include <sstream>
 #include <ctime>
+#include <iostream>
+#include <sstream>
+#include <string>
 #include "logger.h"
 
-const std::string Logger::_monthString[12] = { "Jan", "Feb", "Mar", "Apr", "May", "June", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec" };
-std::vector<LogEntry> Logger::messages;
+std::vector<engine::LogEntry> engine::Logger::messages;
 
-std::string Logger::GetFormattedDateTime()
+std::string engine::Logger::GetFormattedDateTime()
 {
     std::time_t now;
     std::time(&now);
@@ -15,7 +14,7 @@ std::string Logger::GetFormattedDateTime()
 
     std::ostringstream oss;
     oss << tm->tm_mon + 1 << '/'
-        << Logger::_monthString[tm->tm_mon] << '/'
+        << MONTH_STRING[tm->tm_mon] << '/'
         << tm->tm_year + 1900 << ' '
         << tm->tm_hour << ':'
         << tm->tm_min << ':'
@@ -23,7 +22,7 @@ std::string Logger::GetFormattedDateTime()
     return oss.str();
 }
 
-std::string Logger::GetBaseLogMessage(const std::string& prefix, const std::string& msg)
+std::string engine::Logger::GetBaseLogMessage(const std::string& prefix, const std::string& msg)
 {
     std::ostringstream oss;
     oss << "[" << prefix << "] ["
@@ -31,7 +30,7 @@ std::string Logger::GetBaseLogMessage(const std::string& prefix, const std::stri
     return oss.str();
 }
 
-void Logger::Log(const std::string& msg)
+void engine::Logger::Log(const std::string& msg)
 {
     LogEntry logEntry;
     logEntry.type = LogType::INFO;
@@ -42,7 +41,7 @@ void Logger::Log(const std::string& msg)
     Logger::messages.push_back(logEntry);
 }
 
-void Logger::Warn(const std::string& msg)
+void engine::Logger::Warn(const std::string& msg)
 {
     LogEntry logEntry;
     logEntry.type = LogType::WARNING;
@@ -53,7 +52,7 @@ void Logger::Warn(const std::string& msg)
     Logger::messages.push_back(logEntry);
 }
 
-void Logger::Error(const std::string& msg)
+void engine::Logger::Error(const std::string& msg)
 {
     LogEntry logEntry;
     logEntry.type = LogType::ERROR;

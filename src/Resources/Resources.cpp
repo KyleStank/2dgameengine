@@ -4,18 +4,18 @@
 #include "resources.h"
 #include "../logger/logger.h"
 
-Resources::Resources()
+engine::Resources::Resources()
 {
     Logger::Log("Resources constructor invoked.");
 }
 
-Resources::~Resources()
+engine::Resources::~Resources()
 {
     ClearTextures();
     Logger::Log("Resources destructor invoked.");
 }
 
-void Resources::ClearTextures()
+void engine::Resources::ClearTextures()
 {
     for (std::pair<std::string, SDL_Texture*> pair: textures)
     {
@@ -25,7 +25,7 @@ void Resources::ClearTextures()
     textures.clear();
 }
 
-void Resources::LoadTexture(SDL_Renderer* renderer, const std::string& assetId, const std::string& path)
+void engine::Resources::LoadTexture(SDL_Renderer* renderer, const std::string& assetId, const std::string& path)
 {
     SDL_Surface* surface = IMG_Load(path.c_str());
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -36,7 +36,7 @@ void Resources::LoadTexture(SDL_Renderer* renderer, const std::string& assetId, 
     Logger::Log("Texture[" + assetId + "] loaded in memory from [" + path + "].");
 }
 
-SDL_Texture* Resources::GetTexture(const std::string& assetId)
+SDL_Texture* engine::Resources::GetTexture(const std::string& assetId)
 {
     return textures[assetId];
 }

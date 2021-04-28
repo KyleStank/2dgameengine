@@ -1,34 +1,34 @@
 #include <iostream>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include <glm/glm.hpp>
 #include <lua/lua.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include "game.h"
-#include "../logger/logger.h"
-#include "../ecs/ecs.h"
 #include "../components/rigidbody_component.h"
 #include "../components/transform_component.h"
 #include "../components/sprite_component.h"
+#include "../ecs/ecs.h"
+#include "../logger/logger.h"
 #include "../systems/render_system.h"
 #include "../systems/movement_system.h"
 
-Game::Game()
+engine::Game::Game()
 {
     _isRunning = false;
     _msPreviousFrame = MS_PER_FRAME;
-    
+
     _registry = std::make_unique<Registry>();
     _resources = std::make_unique<Resources>();
 
     Logger::Log("Game constructor invoked.");
 }
 
-Game::~Game()
+engine::Game::~Game()
 {
     Logger::Log("Game destructor invoked.");
 }
 
-void Game::Initialize()
+void engine::Game::Initialize()
 {
     // Initialize SDL.
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
@@ -89,7 +89,7 @@ void Game::Initialize()
     _isRunning = true;
 }
 
-void Game::Run()
+void engine::Game::Run()
 {
     LoadLevel(1);
     Setup();
@@ -103,47 +103,7 @@ void Game::Run()
     Destroy();
 }
 
-// TODO: Clean up. Remove inline-imports, move Explode() somewhere else.
-// Delimiter: https://stackoverflow.com/questions/890164/how-can-i-split-a-string-by-a-delimiter-into-an-array
-#include <string>
-#include <fstream>
-#include <vector>
-
-std::vector<std::string> Explode(const std::string& str, const char& ch)
-{
-    std::string next;
-    std::vector<std::string> result;
-
-    // For each character in the string.
-    for (std::string::const_iterator it = str.begin(); it != str.end(); it++)
-    {
-        // If we've hit the terminal character.
-        if (*it == ch)
-        {
-            // If we have some characters accumulated.
-            if (!next.empty())
-            {
-                // Add them to the result vector.
-                result.push_back(next);
-                next.clear();
-            }
-        }
-        else
-        {
-            // Accumulate the next character into the sequence.
-            next += *it;
-        }
-    }
-
-    if (!next.empty())
-    {
-        result.push_back(next);
-    }
-
-    return result;
-}
-
-void Game::LoadLevel(int level)
+void engine::Game::LoadLevel(int level)
 {
     // Load textures from Resources.
     _resources->LoadTexture(_renderer, "jungle-tileset", "./assets/tilemaps/jungle.png");
@@ -153,40 +113,6 @@ void Game::LoadLevel(int level)
     // Add systems.
     _registry->AddSystem<RenderSystem>();
     _registry->AddSystem<MovementSystem>();
-
-    // // Generate tile maps.
-    // std::ifstream ifs("./assets/tilemaps/jungle.map");
-    // std::string content = std::string(
-    //     std::istreambuf_iterator<char>(ifs),
-    //     std::istreambuf_iterator<char>()
-    // );
-    // std::vector<std::string> mapContents = Explode(content, ',');
-    // int mapContentsSize = static_cast<int>(mapContents.size());
-    // for (int i = 0; i < mapContentsSize; i++)
-    // {
-    //     int mapIndex = std::stoi(mapContents[i]);
-
-    //     Entity tileEntity = _registry->CreateEntity();
-    //     tileEntity.AddComponent<TransformComponent>(glm::vec2((i * 32.0), 0.0), glm::vec2(1.0, 1.0), 0.0);
-    //     tileEntity.AddComponent<SpriteComponent>("jungle-tileset", 32, 32, 0, 0);
-    // }
-
-    // int count = 0;
-    // string line;
- 
-    // /* Creating input filestream */ 
-    // ifstream file("main.cpp");
-    // while (getline(file, line))
-    //     count++;
-
-    // int count = 0;
-    // std::string line;
-
-    // std::ifstream ifs("./assets/tilemaps/jungle.map");
-    // while (std::getline(ifs, line))
-    // {
-    //     count++;
-    // }
 
     // Setup tank entity.
     Entity tankEntity = _registry->CreateEntity();
@@ -201,12 +127,12 @@ void Game::LoadLevel(int level)
     truckEntity.AddComponent<SpriteComponent>("truck-image", 32, 32);
 }
 
-void Game::Setup()
+void engine::Game::Setup()
 {
-    
+
 }
 
-void Game::ProcessInput()
+void engine::Game::ProcessInput()
 {
     SDL_Event sdlEvent;
     while (SDL_PollEvent(&sdlEvent))
@@ -216,7 +142,7 @@ void Game::ProcessInput()
             case SDL_EventType::SDL_QUIT:
                 _isRunning = false;
                 break;
-            
+
             case SDL_EventType::SDL_KEYDOWN:
                 if (sdlEvent.key.keysym.sym == SDL_KeyCode::SDLK_ESCAPE)
                 {
@@ -227,7 +153,7 @@ void Game::ProcessInput()
     }
 }
 
-void Game::EnforceFrameRate()
+void engine::Game::EnforceFrameRate()
 {
     // If we are running too fast, waste some time until we reach MS_PER_FRAME.
     Uint32 timeToWait = MS_PER_FRAME - (SDL_GetTicks() - _msPreviousFrame);
@@ -243,7 +169,7 @@ void Game::EnforceFrameRate()
     _msPreviousFrame = SDL_GetTicks();
 }
 
-void Game::Update()
+void engine::Game::Update()
 {
     // Update systems.
     _registry->GetSystem<MovementSystem>().Update(_deltaTime);
@@ -252,19 +178,19 @@ void Game::Update()
     _registry->Update();
 }
 
-void Game::Render()
+void engine::Game::Render()
 {
     // Draw background.
     SDL_SetRenderDrawColor(_renderer, 21, 21, 21, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(_renderer);
 
     _registry->GetSystem<RenderSystem>().Update(_renderer, _resources);
-    
+
     // Swap back buffer with front buffer.
     SDL_RenderPresent(_renderer);
 }
 
-void Game::Destroy()
+void engine::Game::Destroy()
 {
     SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_window);
