@@ -17,7 +17,6 @@
 #include "../systems/render_system.h"
 #include "../systems/movement_system.h"
 
-#include <iostream>
 engine::Game::Game()
 {
     _isRunning = false;
@@ -119,6 +118,45 @@ void engine::Game::LoadLevel(int level)
     _registry->AddSystem<RenderSystem>();
     _registry->AddSystem<MovementSystem>();
 
+    // Generate tile map.
+    std::string path = "./assets/tilemaps/jungle.map";
+    std::vector<std::string> contents = engine::io::ReadAllLines(path);
+    int contentsSize = static_cast<int>(contents.size());
+    for (int row = 0; row < contentsSize; row++) // Read "rows"/lines of file.
+    {
+        std::vector<std::string> results = engine::util::str_split(contents[row], ',');
+        int resultsSize = static_cast<int>(results.size());
+        for (int column = 0; column < resultsSize; column++) // Read "columns"/every item in line delimited by comma.
+        {
+            // Define constant data based on tilemap photo.
+            // TODO: Add a way for these value to be either decided automatically, or tweaked within a config file.
+            const int tileSize = 32;
+            const int tilemapCols = 10;
+            const int tilemapRows = 3;
+
+            // Find the x and y index of the tile, relative to the tilemap image size.
+            const int tileIndex = atoi(results[column].c_str());
+            int xIndex = tileIndex % tilemapCols;
+            int yIndex = 0;
+            for (int i = 0; i < tilemapRows; i++)
+            {
+                int smallestCol = i * tilemapCols;
+                int biggestCol = smallestCol + (tilemapCols - 1);
+                if (!(tileIndex < smallestCol) && !(tileIndex > biggestCol))
+                {
+                    yIndex = i;
+                    break;
+                }
+            }
+
+            // Create tile entity.
+            // The tile x and y index are multipled by the tile size to offset the srcRect of jungle-tileset.
+            Entity tile = _registry->CreateEntity();
+            tile.AddComponent<TransformComponent>(glm::vec2(column * tileSize, row * tileSize), glm::vec2(1.0f, 1.0f), 0.0d);
+            tile.AddComponent<SpriteComponent>("jungle-tileset", tileSize, tileSize, xIndex * tileSize, yIndex * tileSize);
+        }
+    }
+
     // Setup tank entity.
     Entity tankEntity = _registry->CreateEntity();
     tankEntity.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
@@ -127,7 +165,7 @@ void engine::Game::LoadLevel(int level)
 
     // Setup truck entity.
     Entity truckEntity = _registry->CreateEntity();
-    truckEntity.AddComponent<TransformComponent>(glm::vec2(10.0, 50.0), glm::vec2(2.0, 2.0), 90.0);
+    truckEntity.AddComponent<TransformComponent>(glm::vec2(10.0, 50.0), glm::vec2(1.0, 1.0), 90.0);
     truckEntity.AddComponent<RigidbodyComponent>(glm::vec2(0.0, 20.0));
     truckEntity.AddComponent<SpriteComponent>("truck-image", 32, 32);
 }
