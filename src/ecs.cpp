@@ -1,20 +1,20 @@
 #include <algorithm>
 #include <string>
 #include "ecs.h"
-#include "../logger/logger.h"
+#include "logger.h"
 
-int engine::IBaseComponent::nextId = 0;
+int engine::ecs::base_component::next_id = 0;
 
-int engine::Entity::GetId() const {
-    return id;
+int engine::ecs::entity::get_id() const {
+    return _id;
 }
 
-void engine::System::AddEntityToSystem(Entity entity)
+void engine::ecs::system::add_entity_to_system(ecs::entity entity)
 {
-    entities.push_back(entity);
+    _entities.push_back(entity);
 }
 
-void engine::System::RemoveEntityFromSystem(Entity entity)
+void engine::ecs::system::remove_entity_from_system(ecs::entity entity)
 {
     /**
      * TODO: Create helper class to deal with bullshit like this much easier.
@@ -37,80 +37,80 @@ void engine::System::RemoveEntityFromSystem(Entity entity)
      *
      * At least, I think I understand and explained this properly so I don't forget later, lol.
      */
-    entities.erase(
+    _entities.erase(
         std::remove_if(
-            entities.begin(),
-            entities.end(),
-            [&entity](const Entity other)->bool
+            _entities.begin(),
+            _entities.end(),
+            [&entity](const ecs::entity other)->bool
             {
                 return entity == other;
             }
         ),
-        entities.end()
+        _entities.end()
     );
 }
 
-std::vector<engine::Entity> engine::System::GetSystemEntities() const
+std::vector<engine::ecs::entity> engine::ecs::system::get_system_entities() const
 {
-    return entities;
+    return _entities;
 }
 
-const engine::Signature& engine::System::GetComponentSignature() const
+const engine::ecs::signature& engine::ecs::system::get_component_signature() const
 {
-    return componentSignature;
+    return _component_signature;
 }
 
-void engine::Registry::Update()
+void engine::ecs::registry::update()
 {
     // Create all entities that are pending creation.
-    for (const engine::Entity entity: pendingCreationEntities)
+    for (const ecs::entity entity: pending_creation_entities)
     {
-        AddEntityToSystems(entity);
+        add_entity_to_systems(entity);
     }
 
     // Clear list of entities that were pending creation.
-    pendingCreationEntities.clear();
+    pending_creation_entities.clear();
 
     // TODO: Destroy entities that are pending.
 }
 
-void engine::Registry::AddEntityToSystems(engine::Entity entity)
+void engine::ecs::registry::add_entity_to_systems(ecs::entity entity)
 {
-    const int entityId = entity.GetId();
-    const Signature& entityComponentSignature = entityComponentSignatures[entityId];
+    const int entity_id = entity.get_id();
+    const ecs::signature& entityComponentSignature = entity_component_signatures[entity_id];
 
     // Loop through all systems and add entity to any system that has a matching component signature with the entity.
     for (auto& system: systems)
     {
-        const Signature& systemComponentSignature = system.second->GetComponentSignature();
+        const ecs::signature& systemComponentSignature = system.second->get_component_signature();
 
         // Perform bit wise check to compare entity and system component signatures.
         bool isInterested = (entityComponentSignature & systemComponentSignature) == systemComponentSignature;
 
         if (isInterested)
         {
-            system.second->AddEntityToSystem(entity);
+            system.second->add_entity_to_system(entity);
         }
     }
 }
 
-engine::Entity engine::Registry::CreateEntity()
+engine::ecs::entity engine::ecs::registry::create_entity()
 {
     // Increment total number of entities and assign new value at the same time.
-    int entityId = numEntities++;
+    int entity_id = _active_entities++;
 
     // Create new entity instance and add to list of pending.
-    Entity entity(entityId);
+    ecs::entity entity(entity_id);
     entity.registry = this;
 
-    pendingCreationEntities.insert(entity);
+    pending_creation_entities.insert(entity);
 
-    if (entityId >= static_cast<int>(entityComponentSignatures.size()))
+    if (entity_id >= static_cast<int>(entity_component_signatures.size()))
     {
-        entityComponentSignatures.resize(entityId + 1);
+        entity_component_signatures.resize(entity_id + 1);
     }
 
-    Logger::Log("Entity created with ID: " + std::to_string(entityId));
+    logger::log("Entity created with ID: " + std::to_string(entity_id));
 
     return entity;
 }

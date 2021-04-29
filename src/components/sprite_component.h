@@ -4,24 +4,24 @@
 #include <string>
 #include <SDL2/SDL.h>
 
-namespace engine
+namespace engine::components
 {
-    struct SpriteComponent
+    struct sprite_component
     {
-        std::string assetId;
+        std::string asset_id;
         int width;
         int height;
-        SDL_Rect srcRect;
+        SDL_Rect src_rect;
 
-        SpriteComponent(std::string assetId = "", int width = 0, int height = 0, int srcRectX = 0, int srcRectY = 0)
+        sprite_component(std::string asset_id = "", int width = 0, int height = 0, int src_rect_x = 0, int src_rect_y = 0)
         {
-            this->assetId = assetId;
+            this->asset_id = asset_id;
             this->width = width;
             this->height = height;
-            this->srcRect =
+            this->src_rect =
             {
-                srcRectX,
-                srcRectY,
+                src_rect_x,
+                src_rect_y,
                 width,
                 height
             };

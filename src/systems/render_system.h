@@ -3,31 +3,31 @@
 
 #include <vector>
 #include <SDL2/SDL.h>
+#include "../ecs.h"
+#include "../resources.h"
 #include "../components/sprite_component.h"
 #include "../components/transform_component.h"
-#include "../ecs/ecs.h"
-#include "../resources/resources.h"
 
-namespace engine
+namespace engine::systems
 {
-    class RenderSystem: public System
+    class render_system: public ecs::system
     {
         public:
-            RenderSystem()
+            render_system()
             {
-                RequireComponent<TransformComponent>();
-                RequireComponent<SpriteComponent>();
+                require_component<components::transform_component>();
+                require_component<components::sprite_component>();
             }
 
-            void Update(SDL_Renderer* renderer, std::unique_ptr<Resources>& resources)
+            void update(SDL_Renderer* renderer)
             {
-                for (const Entity entity: GetSystemEntities())
+                for (const ecs::entity entity: get_system_entities())
                 {
-                    const TransformComponent transform = entity.GetComponent<TransformComponent>();
-                    const SpriteComponent sprite = entity.GetComponent<SpriteComponent>();
+                    const components::transform_component transform = entity.get_component<components::transform_component>();
+                    const components::sprite_component sprite = entity.get_component<components::sprite_component>();
 
-                    SDL_Rect srcRect = sprite.srcRect;
-                    SDL_Rect destRect = {
+                    SDL_Rect src_rect = sprite.src_rect;
+                    SDL_Rect dest_rect = {
                         static_cast<int>(transform.position.x),
                         static_cast<int>(transform.position.y),
                         static_cast<int>(sprite.width * transform.scale.x),
@@ -36,23 +36,13 @@ namespace engine
 
                     SDL_RenderCopyEx(
                         renderer,
-                        resources->GetTexture(sprite.assetId),
-                        &srcRect,
-                        &destRect,
+                        resources::get_texture(sprite.asset_id),
+                        &src_rect,
+                        &dest_rect,
                         transform.rotation,
                         NULL,
                         SDL_FLIP_NONE
                     );
-
-                    // SDL_Rect rect = {
-                    //     static_cast<int>(transform.position.x),
-                    //     static_cast<int>(transform.position.y),
-                    //     sprite.width,
-                    //     sprite.height
-                    // };
-
-                    // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                    // SDL_RenderFillRect(renderer, &rect);
                 }
             }
     };

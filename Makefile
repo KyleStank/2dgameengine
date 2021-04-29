@@ -1,11 +1,7 @@
 C_COMPILER = g++
 LANG_STD = -std=c++17
 COMPILER_FLAGS = -Wall -Wfatal-errors
-SRC_FILES = src/*.cpp \
-			src/Logger/*.cpp \
-			src/Game/*.cpp \
-			src/ECS/*.cpp \
-			src/Resources/*.cpp
+SRC_FILES = src/*.cpp
 INCLUDE_PATH = -IC:/MinGWLib/include -Iinclude
 LIBRARY_PATH = -LC:/MinGWLib/lib -Llib
 LINKER_FLAGS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -llua53

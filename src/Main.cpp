@@ -1,12 +1,12 @@
-#include "game/game.h"
+#include "game.h"
 
 int main(int argc, char* argv[])
 {
-    engine::Game game;
+    engine::game game;
 
-    game.Initialize();
-    game.Run();
-    game.Destroy();
+    game.initialize();
+    game.run();
+    game.destroy();
 
     return 0;
 }

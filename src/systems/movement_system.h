@@ -2,30 +2,30 @@
 #define ENGINE_MOVEMENTSYSTEM_H
 
 #include <vector>
+#include "../ecs.h"
 #include "../components/rigidbody_component.h"
 #include "../components/transform_component.h"
-#include "../ecs/ecs.h"
 
-namespace engine
+namespace engine::systems
 {
-    class MovementSystem: public System
+    class movement_system: public ecs::system
     {
         public:
-            MovementSystem()
+            movement_system()
             {
-                RequireComponent<TransformComponent>();
-                RequireComponent<RigidbodyComponent>();
+                require_component<components::transform_component>();
+                require_component<components::rigidbody_component>();
             }
 
-            void Update(const double deltaTime)
+            void update(const double delta_time)
             {
-                for (const Entity entity: GetSystemEntities())
+                for (const ecs::entity entity: get_system_entities())
                 {
-                    const RigidbodyComponent rigidbody = entity.GetComponent<RigidbodyComponent>();
-                    TransformComponent& transform = entity.GetComponent<TransformComponent>();
+                    const components::rigidbody_component rigidbody = entity.get_component<components::rigidbody_component>();
+                    components::transform_component& transform = entity.get_component<components::transform_component>();
 
-                    transform.position.x += rigidbody.velocity.x * deltaTime;
-                    transform.position.y += rigidbody.velocity.y * deltaTime;
+                    transform.position.x += rigidbody.velocity.x * delta_time;
+                    transform.position.y += rigidbody.velocity.y * delta_time;
                 }
             }
     };
