@@ -25,33 +25,3 @@ std::vector<std::string> engine::io::read_all_lines(const std::string& path)
     }
     return lines;
 }
-
-// Returns the number of lines within a file.
-int engine::io::get_line_count(const std::string& path)
-{
-    int count = 0;
-    std::ifstream ifs(path);
-    std::string current_line;
-    while (std::getline(ifs, current_line))
-    {
-        count++;
-    }
-    return count;
-}
-
-// Returns the value of a specific line.
-std::string engine::io::read_line(const std::string& path, const int& line)
-{
-    int line_count = get_line_count(path);
-    std::ifstream ifs(path);
-    std::string current_line;
-    for (int i = 0; std::getline(ifs, current_line) && i < line_count; i++)
-    {
-        if (i + 1 == line)
-        {
-            return current_line;
-        }
-    }
-
-    return "";
-}
