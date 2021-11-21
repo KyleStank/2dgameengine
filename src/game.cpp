@@ -115,14 +115,20 @@ void engine::game::run()
 
 void engine::game::load_level(int level)
 {
+    // Add systems.
+    _registry->add_system<systems::render_system>();
+    _registry->add_system<systems::movement_system>();
+
     // Load textures from Resources.
     resources::load_texture(_renderer, "jungle-tileset", "./assets/tilemaps/jungle.png");
     resources::load_texture(_renderer, "tank-image", "./assets/images/tank-panther-right.png");
     resources::load_texture(_renderer, "truck-image", "./assets/images/truck-ford-right.png");
 
-    // Add systems.
-    _registry->add_system<systems::render_system>();
-    _registry->add_system<systems::movement_system>();
+    // Define constant data based on tilemap photo.
+    // TODO: Add a way for these value to be either decided automatically, or tweaked within a config file.
+    const int tile_size = 32;
+    const int tilemap_cols = 10;
+    const int tilemap_rows = 3;
 
     // Generate tile map.
     std::string path = "./assets/tilemaps/jungle.map";
@@ -134,12 +140,6 @@ void engine::game::load_level(int level)
         int results_size = static_cast<int>(results.size());
         for (int column = 0; column < results_size; column++) // Read "columns"/every item in line delimited by comma.
         {
-            // Define constant data based on tilemap photo.
-            // TODO: Add a way for these value to be either decided automatically, or tweaked within a config file.
-            const int tile_size = 32;
-            const int tilemap_cols = 10;
-            const int tilemap_rows = 3;
-
             // Find the x and y index of the tile, relative to the tilemap image size.
             const int tile_index = atoi(results[column].c_str());
             int x_index = tile_index % tilemap_cols;
